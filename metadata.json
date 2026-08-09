@@ -1,0 +1,6 @@
+{
+  "name": "سلف شخصية",
+  "description": "نظام إدارة سلف شخصية وتتبع 10 دفعات يومية للأعضاء ولوحة تحكم الإدارة",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
