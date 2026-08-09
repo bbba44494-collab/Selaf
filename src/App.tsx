@@ -59,18 +59,15 @@ export default function App() {
   );
   const [logs, setLogs] = useState<ActivityLog[]>(getStoredLogs());
   
-  // Default to Admin if no stored user, so admin dashboard/login is immediately accessible!
+  // Retrieve logged in user from storage (defaults to null if not logged in)
   const [currentUser, setCurrentUser] = useState<User | null>(() => {
-    const stored = getStoredCurrentUser();
-    if (stored) return stored;
-    const adminUser = getStoredUsers().find((u) => u.role === 'admin') || getStoredUsers()[0];
-    return adminUser;
+    return getStoredCurrentUser();
   });
 
   const [activeTab, setActiveTab] = useState<string>('user_grid');
   
-  // Modals State
-  const [isLoginOpen, setIsLoginOpen] = useState(false);
+  // Open login modal automatically if user is not logged in on initial visit
+  const [isLoginOpen, setIsLoginOpen] = useState(() => !getStoredCurrentUser());
   const [isPayoutModalOpen, setIsPayoutModalOpen] = useState(false);
   const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
   const [selectedReceipt, setSelectedReceipt] = useState<{
@@ -454,6 +451,28 @@ export default function App() {
 
       {/* Main Content Area */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        {/* VIEW 0: Logged Out Landing Page */}
+        {!currentUser && (
+          <div className="bg-white rounded-3xl p-8 border border-slate-200/80 shadow-sm text-center max-w-xl mx-auto my-12 space-y-6">
+            <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto shadow-inner">
+              <UserCheck className="w-8 h-8" />
+            </div>
+            <div className="space-y-2">
+              <h2 className="text-2xl font-black text-slate-900">مرحباً بك في نظام {config.associationName}</h2>
+              <p className="text-xs sm:text-sm text-slate-500 leading-relaxed">
+                يرجى تسجيل الدخول للوصول إلى لوحة التحكم الخاصة بك ومتابعة حالة الدفعات والسُلف.
+              </p>
+            </div>
+            <button
+              onClick={() => setIsLoginOpen(true)}
+              className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-6 py-3 rounded-2xl text-sm transition shadow-lg shadow-emerald-600/20 inline-flex items-center gap-2"
+            >
+              <UserCheck className="w-5 h-5" />
+              <span>تسجيل الدخول الآن</span>
+            </button>
+          </div>
+        )}
         
         {/* VIEW 1: User Panel (جدول العضو الشخصي) */}
         {activeTab === 'user_grid' && currentUser && currentUser.role === 'user' && (
