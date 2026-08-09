@@ -59,15 +59,13 @@ export default function App() {
   );
   const [logs, setLogs] = useState<ActivityLog[]>(getStoredLogs());
   
-  // Retrieve logged in user from storage (defaults to null if not logged in)
-  const [currentUser, setCurrentUser] = useState<User | null>(() => {
-    return getStoredCurrentUser();
-  });
+  // Always require fresh login when link is opened
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
 
   const [activeTab, setActiveTab] = useState<string>('user_grid');
   
-  // Open login modal automatically if user is not logged in on initial visit
-  const [isLoginOpen, setIsLoginOpen] = useState(() => !getStoredCurrentUser());
+  // Open login modal automatically on initial visit
+  const [isLoginOpen, setIsLoginOpen] = useState(true);
   const [isPayoutModalOpen, setIsPayoutModalOpen] = useState(false);
   const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
   const [selectedReceipt, setSelectedReceipt] = useState<{
