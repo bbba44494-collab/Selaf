@@ -126,7 +126,9 @@ export const addActivityLog = (
 
 export const getStoredCurrentUser = (): User | null => {
   try {
-    const data = localStorage.getItem(KEYS.CURRENT_USER);
+    // Clear any stale persistent user session from localStorage to force login on new link visits
+    localStorage.removeItem(KEYS.CURRENT_USER);
+    const data = sessionStorage.getItem(KEYS.CURRENT_USER);
     return data ? JSON.parse(data) : null;
   } catch {
     return null;
@@ -134,10 +136,11 @@ export const getStoredCurrentUser = (): User | null => {
 };
 
 export const saveStoredCurrentUser = (user: User | null): void => {
+  localStorage.removeItem(KEYS.CURRENT_USER);
   if (user) {
-    localStorage.setItem(KEYS.CURRENT_USER, JSON.stringify(user));
+    sessionStorage.setItem(KEYS.CURRENT_USER, JSON.stringify(user));
   } else {
-    localStorage.removeItem(KEYS.CURRENT_USER);
+    sessionStorage.removeItem(KEYS.CURRENT_USER);
   }
 };
 
