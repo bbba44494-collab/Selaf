@@ -42,7 +42,11 @@ export const MemberManagementModal: React.FC<MemberManagementModalProps> = ({
 
   const handleCreateMember = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim() || !username.trim()) return;
+    if (!name.trim()) return;
+
+    const finalUsername = username.trim()
+      ? username.trim().toLowerCase()
+      : name.trim().toLowerCase().replace(/\s+/g, '_');
 
     const maxOrder = memberUsers.length > 0 ? Math.max(...memberUsers.map((u) => u.order)) : 0;
 
@@ -59,7 +63,7 @@ export const MemberManagementModal: React.FC<MemberManagementModalProps> = ({
 
     onAddMember({
       name: name.trim(),
-      username: username.trim().toLowerCase(),
+      username: finalUsername,
       password: password.trim() || '123',
       role: 'user',
       order: maxOrder + 1,
@@ -165,15 +169,14 @@ export const MemberManagementModal: React.FC<MemberManagementModalProps> = ({
 
                 <div>
                   <label className="block text-[11px] font-bold text-slate-700 mb-1">
-                    اسم المستخدم (للدخول)
+                    اسم المستخدم (للدخول - اختياري)
                   </label>
                   <input
                     type="text"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
-                    placeholder="khaled"
+                    placeholder="سيتم إنشاؤه تلقائياً إذا تُرك فارغاً"
                     className="w-full bg-white border border-slate-300 rounded-xl px-3 py-1.5 text-xs focus:outline-none focus:border-emerald-500"
-                    required
                   />
                 </div>
 
