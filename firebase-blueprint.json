@@ -1,0 +1,66 @@
+{
+  "entities": {
+    "config": {
+      "title": "Config",
+      "description": "System configuration for the association",
+      "type": "object",
+      "properties": {
+        "associationName": { "type": "string" },
+        "currency": { "type": "string" },
+        "totalDays": { "type": "number" },
+        "defaultDailyAmount": { "type": "number" }
+      }
+    },
+    "users": {
+      "title": "User",
+      "description": "Association members and admins",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "phone": { "type": "string" },
+        "role": { "type": "string" },
+        "dailyTargetAmount": { "type": "number" },
+        "order": { "type": "number" },
+        "password": { "type": "string" }
+      }
+    },
+    "rounds": {
+      "title": "Round",
+      "description": "Association payout rounds",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "roundNumber": { "type": "number" },
+        "currentReceiverId": { "type": "string" },
+        "defaultDailyAmount": { "type": "number" },
+        "status": { "type": "string" },
+        "startDate": { "type": "string" }
+      }
+    },
+    "progress": {
+      "title": "Progress",
+      "description": "Round progress per member",
+      "type": "object",
+      "properties": {
+        "roundId": { "type": "string" },
+        "userId": { "type": "string" },
+        "payments": { "type": "array" }
+      }
+    },
+    "logs": {
+      "title": "Log",
+      "description": "System activity logs",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "userName": { "type": "string" },
+        "action": { "type": "string" },
+        "details": { "type": "string" },
+        "timestamp": { "type": "string" },
+        "type": { "type": "string" }
+      }
+    }
+  }
+}
