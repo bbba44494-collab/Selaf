@@ -22,6 +22,7 @@ import {
   saveStoredCurrentUser,
   addActivityLog,
   resetAllData,
+  updateLastActiveTime,
 } from './lib/storage';
 
 // Components
@@ -59,13 +60,15 @@ export default function App() {
   );
   const [logs, setLogs] = useState<ActivityLog[]>(getStoredLogs());
   
-  // Always require fresh login when link is opened
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  // Retrieve logged in user from storage (valid within 30 mins of activity)
+  const [currentUser, setCurrentUser] = useState<User | null>(() => {
+    return getStoredCurrentUser();
+  });
 
   const [activeTab, setActiveTab] = useState<string>('user_grid');
   
-  // Open login modal automatically on initial visit
-  const [isLoginOpen, setIsLoginOpen] = useState(true);
+  // Open login modal automatically if no active session
+  const [isLoginOpen, setIsLoginOpen] = useState(() => !getStoredCurrentUser());
   const [isPayoutModalOpen, setIsPayoutModalOpen] = useState(false);
   const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
   const [selectedReceipt, setSelectedReceipt] = useState<{
@@ -84,6 +87,43 @@ export default function App() {
         setActiveTab('user_grid');
       }
     }
+  }, [currentUser]);
+
+  // 30-Minute Inactivity Auto-Logout Handler
+  useEffect(() => {
+    if (!currentUser) return;
+
+    updateLastActiveTime();
+
+    let throttleTimer: ReturnType<typeof setTimeout> | null = null;
+    const handleUserActivity = () => {
+      if (!throttleTimer) {
+        throttleTimer = setTimeout(() => {
+          updateLastActiveTime();
+          throttleTimer = null;
+        }, 3000);
+      }
+    };
+
+    const events = ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'];
+    events.forEach((evt) => window.addEventListener(evt, handleUserActivity, { passive: true }));
+
+    const interval = setInterval(() => {
+      const lastActiveStr = localStorage.getItem('al_jamiah_last_active');
+      if (lastActiveStr) {
+        const inactiveMs = Date.now() - parseInt(lastActiveStr, 10);
+        const THIRTY_MINUTES = 30 * 60 * 1000;
+        if (inactiveMs >= THIRTY_MINUTES) {
+          handleLogout();
+        }
+      }
+    }, 10000);
+
+    return () => {
+      events.forEach((evt) => window.removeEventListener(evt, handleUserActivity));
+      if (throttleTimer) clearTimeout(throttleTimer);
+      clearInterval(interval);
+    };
   }, [currentUser]);
 
   // Current active round
