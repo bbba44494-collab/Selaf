@@ -196,6 +196,10 @@ export interface SyncData {
 }
 
 export const subscribeToFirestoreStore = (onSync: (data: SyncData) => void): (() => void) => {
+  const handleSnapshotError = (err: unknown) => {
+    console.warn('Firestore real-time sync warning (using cached data):', err);
+  };
+
   const unsubConfig = onSnapshot(configDocRef, (snapshot) => {
     if (snapshot.exists()) {
       const cfg = snapshot.data() as SystemConfig;
@@ -205,7 +209,7 @@ export const subscribeToFirestoreStore = (onSync: (data: SyncData) => void): (()
       // Seed initial config
       saveStoredConfig(getStoredConfig());
     }
-  });
+  }, handleSnapshotError);
 
   const unsubUsers = onSnapshot(usersDocRef, (snapshot) => {
     if (snapshot.exists()) {
@@ -216,7 +220,7 @@ export const subscribeToFirestoreStore = (onSync: (data: SyncData) => void): (()
       // Seed initial users
       saveStoredUsers(getStoredUsers());
     }
-  });
+  }, handleSnapshotError);
 
   const unsubRounds = onSnapshot(roundsDocRef, (snapshot) => {
     if (snapshot.exists()) {
@@ -227,7 +231,7 @@ export const subscribeToFirestoreStore = (onSync: (data: SyncData) => void): (()
       // Seed initial rounds
       saveStoredRounds(getStoredRounds());
     }
-  });
+  }, handleSnapshotError);
 
   const unsubProgress = onSnapshot(progressDocRef, (snapshot) => {
     if (snapshot.exists()) {
@@ -238,7 +242,7 @@ export const subscribeToFirestoreStore = (onSync: (data: SyncData) => void): (()
       // Seed initial progress
       saveStoredProgress(getStoredProgress());
     }
-  });
+  }, handleSnapshotError);
 
   const unsubLogs = onSnapshot(logsDocRef, (snapshot) => {
     if (snapshot.exists()) {
@@ -249,7 +253,7 @@ export const subscribeToFirestoreStore = (onSync: (data: SyncData) => void): (()
       // Seed initial logs
       saveStoredLogs(getStoredLogs());
     }
-  });
+  }, handleSnapshotError);
 
   return () => {
     unsubConfig();
