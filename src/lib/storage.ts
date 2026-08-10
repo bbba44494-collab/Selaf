@@ -124,23 +124,44 @@ export const addActivityLog = (
   return updatedLogs;
 };
 
+export const updateLastActiveTime = (): void => {
+  try {
+    localStorage.setItem('al_jamiah_last_active', Date.now().toString());
+  } catch {
+    // Ignore storage errors
+  }
+};
+
 export const getStoredCurrentUser = (): User | null => {
   try {
-    // Clear any stale persistent user session from localStorage to force login on new link visits
-    localStorage.removeItem(KEYS.CURRENT_USER);
-    const data = sessionStorage.getItem(KEYS.CURRENT_USER);
-    return data ? JSON.parse(data) : null;
+    const data = localStorage.getItem(KEYS.CURRENT_USER);
+    if (!data) return null;
+
+    const lastActive = localStorage.getItem('al_jamiah_last_active');
+    if (lastActive) {
+      const diff = Date.now() - parseInt(lastActive, 10);
+      const THIRTY_MINUTES = 30 * 60 * 1000;
+      if (diff > THIRTY_MINUTES) {
+        // Session expired due to 30 mins of inactivity
+        localStorage.removeItem(KEYS.CURRENT_USER);
+        localStorage.removeItem('al_jamiah_last_active');
+        return null;
+      }
+    }
+
+    return JSON.parse(data);
   } catch {
     return null;
   }
 };
 
 export const saveStoredCurrentUser = (user: User | null): void => {
-  localStorage.removeItem(KEYS.CURRENT_USER);
   if (user) {
-    sessionStorage.setItem(KEYS.CURRENT_USER, JSON.stringify(user));
+    localStorage.setItem(KEYS.CURRENT_USER, JSON.stringify(user));
+    localStorage.setItem('al_jamiah_last_active', Date.now().toString());
   } else {
-    sessionStorage.removeItem(KEYS.CURRENT_USER);
+    localStorage.removeItem(KEYS.CURRENT_USER);
+    localStorage.removeItem('al_jamiah_last_active');
   }
 };
 
