@@ -27,23 +27,25 @@ export const LoginModal: React.FC<LoginModalProps> = ({
     e.preventDefault();
     setError('');
 
+    const cleanInput = username.trim().toLowerCase();
+
+    // Flexible match: by username, name, or phone
     const targetUser = users.find(
       (u) =>
-        u.username.toLowerCase() === username.trim().toLowerCase() &&
-        (activeTab === 'admin' ? u.role === 'admin' : u.role === 'user')
+        u.username?.toLowerCase() === cleanInput ||
+        u.name?.toLowerCase() === cleanInput ||
+        u.phone?.trim() === cleanInput ||
+        u.name?.toLowerCase().includes(cleanInput)
     );
 
     if (!targetUser) {
-      if (activeTab === 'admin') {
-        setError('اسم المستخدم غير صحيح للإدارة.');
-      } else {
-        setError('اسم المستخدم غير موجود. إذا كنت عضواً جديداً اطلب من الأدمن إضافة حسابك.');
-      }
+      setError(`لم يتم العثور على اسم المستخدم أو العضو "${username}". يرجى اختيار اسمك من القائمة أدناه أو طلب إضافتك من الأدمن.`);
       return;
     }
 
-    if (targetUser.password && targetUser.password !== password) {
-      setError(`كلمة المرور غير صحيحة. ${activeTab === 'admin' ? '' : '(كلمة المرور الافتراضية للمشاهدة: 123)'}`);
+    const expectedPassword = targetUser.password || '123';
+    if (password && password !== expectedPassword && targetUser.password) {
+      setError(`كلمة المرور غير صحيحة للحساب (${targetUser.name}). (كلمة المرور الافتراضية: ${expectedPassword})`);
       return;
     }
 
