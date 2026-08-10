@@ -23,6 +23,7 @@ import {
   addActivityLog,
   resetAllData,
   updateLastActiveTime,
+  subscribeToFirestoreStore,
 } from './lib/storage';
 
 // Components
@@ -75,6 +76,18 @@ export default function App() {
     userId: string;
     dayNumber: number;
   } | null>(null);
+
+  // Real-time Firestore sync listener
+  useEffect(() => {
+    const unsubscribe = subscribeToFirestoreStore((data) => {
+      if (data.config) setConfig(data.config);
+      if (data.users) setUsers(data.users);
+      if (data.rounds) setRounds(data.rounds);
+      if (data.progressMap) setProgressMap(data.progressMap);
+      if (data.logs) setLogs(data.logs);
+    });
+    return () => unsubscribe();
+  }, []);
 
   // Sync tab on role change
   useEffect(() => {
